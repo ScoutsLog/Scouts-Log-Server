@@ -69,6 +69,14 @@
 	Globals::setInstance('language', $_lang);
 
 
+// Cross Origin Headers
+// ------------------------------------
+	header('Access-Control-Allow-Origin: http://eyewire.org');
+	header('Access-Control-Allow-Headers: origin, x-requested-with, content-type');
+	header('Access-Control-Allow-Methods: POST, GET');
+	header('Access-Control-Allow-Credentials: true');
+
+
 // Check if user has been authenticated
 // ------------------------------------
 	$test_auth = Globals::getInstance('session')->get_key('auth_token');

@@ -57,6 +57,14 @@
 	Globals::setInstance('language', $language);
 
 
+// Cross Origin Headers
+// ------------------------------------
+	header('Access-Control-Allow-Origin: http://eyewire.org');
+	header('Access-Control-Allow-Headers: origin, x-requested-with, content-type');
+	header('Access-Control-Allow-Methods: POST, GET');
+	header('Access-Control-Allow-Credentials: true');
+
+
 // Get form request
 // ------------------------------------
 	$request = strtolower(Globals::getInstance('form')->get_value('request', '/[^a-zA-Z0-9\-\_\/]+/', true));
