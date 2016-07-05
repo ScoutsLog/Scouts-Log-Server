@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Forbidden areas
+RewriteRule ^content/(.*) - [F]
+RewriteRule ^lib/(.*) - [F]
+RewriteRule crontab.php - [F]
+RewriteRule composer(.+) - [F]
+
+
+# Check for internal API request
+RewriteRule ^internal/(.+)$ internal.php?request=$1 [NC,L,QSA]
+
+
+# Rewrite rule for API
+#RewriteRule ^1.0/(.+)? api.php?request=$1 [NC,L,QSA]
+
+
+# Rewrite rule for API
+RewriteRule ^1.1/(.+)? api11.php?request=$1 [NC,L,QSA]
