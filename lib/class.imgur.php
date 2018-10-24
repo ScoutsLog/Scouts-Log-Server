@@ -59,10 +59,15 @@ class Imgur_Uploader {
 		// Build HTTP data
 		$post_data = $this->buffer;
 
-		if ($this->buffer['type'] == 'file') {
-			$image_file = file_get_contents($this->buffer['image']);
+		if ($post_data['type'] == 'file') {
+			$image_file = file_get_contents($post_data['image']);
+
 			$post_data['image'] = base64_encode($image_file);
 		}
+
+		unset($post_data['type']);
+
+$fp1 = fopen('/home/scoutslog/private/logs/imgur.request', 'w');
 
 		// Set cURL options
 		curl_setopt($ch, CURLOPT_URL, self::$uri);
@@ -72,10 +77,20 @@ class Imgur_Uploader {
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 
+curl_setopt($ch, CURLOPT_VERBOSE, true);
+curl_setopt($ch, CURLOPT_STDERR , $fp1);
+
 		// Send request
 		$response = curl_exec($ch);
 
 		curl_close($ch);
+
+fclose($fp1);
+
+$fp2 = fopen('/home/scoutslog/private/logs/imgur.response', 'w');
+fwrite($fp2, $response);
+fclose($fp2);
+
 
 		// Process response
 		$obj = new stdClass();
@@ -90,9 +105,9 @@ class Imgur_Uploader {
 
 		for ($n=0; $n < $tl; $n++) {
 			if (substr($lines[n], 0, 12) == 'HTTP/1.1 100') {
-				// skip, jump ahead 3 lines
+				// skip, jump ahead 2 lines
 
-				$n += 3;
+				$n += 2;
 			} else if (substr($lines[$n], 0, 8) == 'HTTP/1.1') {
 				// Get status
 
@@ -116,6 +131,29 @@ class Imgur_Uploader {
 		return $obj;
 	}
 
+
+	public function Status() {
+		// Create cURL object
+		$ch = curl_init();
+
+		// Build HTTP header
+		$headers = array(
+			'Authorization: Client-ID ' . $this->client_id
+		);
+
+		// Set cURL options
+		curl_setopt($ch, CURLOPT_URL, 'https://api.imgur.com/3/credits');
+		curl_setopt($ch, CURLOPT_HEADER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		// Send request
+		$response = curl_exec($ch);
+
+		curl_close($ch);
+
+		echo $response;
+	}
 
 
 	public function Buffer() {

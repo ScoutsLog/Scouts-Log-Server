@@ -1,18 +1,32 @@
 <?php
 
 require_once 'class.eyewire.cell.php';
+require_once 'class.eyewire.cell_mystic.php';
+require_once 'class.eyewire.rating.php';
 require_once 'class.eyewire.stats.php';
 require_once 'class.eyewire.status.php';
 require_once 'class.eyewire.task.php';
 require_once 'class.eyewire.user.php';
 
-
 class EyeWire {
-	protected static $url_base = 'http://eyewire.org/';
+	protected static $url_base = 'https://eyewire.org/';
 	
 	
 
 	protected static $active_cells = array();
+
+
+	private static function get_url() {
+		// Set result
+		$url = self::$url_base;
+
+		// Check for origin value
+		$_origin = Globals::getInstance('session')->get_key('origin');
+
+		if (!empty($_origin)) {
+			$url = $_origin . '/';
+		}
+	}
 		
 	
 	public static function get($url, $headers=array()) {
@@ -88,6 +102,8 @@ class EyeWire {
 		if (empty(self::$active_cells) or $force === true) {
 			// Request active cell list from EyeWire API
 			$url = self::$url_base . '1.0/cell?dataset=1';
+			//$url = self::get_url() . '1.0/cell?dataset=1';
+
 			$headers = array();
 			$headers[] = 'Accept-Language: ' . $lang;
 			$response = self::get($url, $headers);
@@ -138,9 +154,11 @@ class EyeWire {
 		return $response;
 	}
 
-	public static function CellList($all_cells=false, $lang='en-US,en') {
+	public static function CellList($all_cells=false, $lang='en-US,en', $dataset=1) {
 		// Request active cell list from EyeWire API
-		$url = self::$url_base . '1.0/cell?dataset=1';
+		$url = self::$url_base . '1.0/cell?dataset=' . $dataset;
+		//$url = self::get_url() . '1.0/cell?dataset=1';
+
 		$headers = array();
 		$headers[] = 'Accept-Language: ' . $lang;
 		$response = self::get($url, $headers);
@@ -156,12 +174,13 @@ class EyeWire {
 						return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UCS-2BE');
 					}, $c->name);
 				}
-				
+
 				$cells[] = array(
 					'cell' => $c->cell,
 					'name' => $c->name,
 					'difficulty' => $c->difficulty,
-					'active' => empty($c->completed) ? 1 : 0
+					'active' => empty($c->completed) ? 1 : 0,
+					'tags' => $c->tags
 				);
 			}
 		}
@@ -177,6 +196,8 @@ class EyeWire {
 
 	public static function TaskDescendants($task) {
 		$url = self::$url_base . '1.0/task/' . $task . '/hierarchy';
+		//$url = self::get_url() . '1.0/task/' . $task . '/hierarchy';
+
 		$response = self::get($url);
 
 		// Process response
@@ -188,6 +209,8 @@ class EyeWire {
 	
 	public static function UserDetails() {
 		$url = 'https://eyewire.org/2.0/account';
+		//$url = self::get_url() . '2.0/account';
+
 		$url .= '?access_token=' . urlencode(Globals::getInstance('session')->get_key('auth_token'));
 		
 		// Send request to server
@@ -203,7 +226,9 @@ class EyeWire {
 
 	public static function UserBio($username) {
 		// Request cell details from EyeWire API
-		$url = 'http://eyewire.org/1.0/player/' . rawurlencode($username) . '/bio';
+		$url = 'https://eyewire.org/1.0/player/' . rawurlencode($username) . '/bio';
+		//$url = self::get_url() . '1.0/player/' . rawurlencode($username) . '/bio';
+
 		$response = self::get($url);
 		
 		// Process response

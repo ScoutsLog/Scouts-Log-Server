@@ -101,14 +101,22 @@ class eyewire_cell {
 		$db = Globals::getInstance('database');
 
 		// Build query
-		$sql = 'SELECT c.id AS cell, c.name AS cellName, c.name_ko AS cellNameKO, c.difficulty, c.active ';
+		//$sql = 'SELECT c.id AS cell, c.name AS cellName, c.name_ko AS cellNameKO, c.difficulty, c.active ';
+		//$sql .= 'FROM cells c ';
+		//$sql .= 'WHERE c.dataset = 1 ';
+
+		$sql = 'SELECT c.id AS cell, c.name AS cellName, c.name_ko AS cellNameKO, c.difficulty, c.active, COUNT(t.id) AS tasks ';
 		$sql .= 'FROM cells c ';
+		$sql .= 'INNER JOIN ((SELECT c2.id FROM cells c2 WHERE c2.dataset = 1 AND c2.active = 1) UNION DISTINCT (SELECT t2.cell FROM tasks t2 WHERE t2.active = 1)) cl ON (cl.id = c.id) LEFT JOIN tasks t ON (c.id = t.cell AND t.active = 1) ';
+		$sql .= 'WHERE c.dataset = 1 ';
 
 		if ($active_only === true) {
-			$sql .= 'WHERE c.active = 1 ';
+			$sql .= 'AND c.active = 1 ';
 		}
 
-		$sql .= 'ORDER BY c.difficulty, c.name ';
+		$sql .= 'GROUP BY c.id ';
+		$sql .= 'ORDER BY c.difficulty, c.name';
+
 
 		// Execute query
 		$res = $db->query($sql);

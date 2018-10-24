@@ -119,6 +119,7 @@ class eyewire_task {
 		
 			// Process image data
 			$image = '';
+			$image_do_status = -1;
 
 			// Check for standard image processing
 			if (!empty($data->image)) {
@@ -253,11 +254,12 @@ class eyewire_task {
 					
 					// Get URL to file
 					$image = $img->url;
+					$image_do_status = 0;
 				}
 			}
 
 			// Build SQL statement
-			$sql = 'INSERT INTO actions (id, task, status, issue, user, reaped, notes, image, timestamp) ';
+			$sql = 'INSERT INTO actions (id, task, status, issue, user, reaped, notes, image, image_do_status, timestamp) ';
 			$sql .= 'SELECT IFNULL(MAX(id), 0) + 1, ';
 			$sql .= '"' . $this->db->real_escape_string($data->task) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($data->status) . '", ';
@@ -266,6 +268,7 @@ class eyewire_task {
 			$sql .= '"' . $this->db->real_escape_string($data->reaped) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($data->notes) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($image) . '", ';
+			$sql .= $image_do_status . ', ';
 			$sql .= ' UTC_TIMESTAMP() ';
 			$sql .= 'FROM actions ';
 			$sql .= 'WHERE task = "' . $this->db->real_escape_string($data->task) . '"';
@@ -337,17 +340,19 @@ class eyewire_task {
 		
 			// Process image data
 			$image = '';
+			$image_do_status = -1;
 
 			if (!empty($image_data)) {
 				$img = self::GetNewImagePath($this->cell, $this->id);
 
 				if (move_uploaded_file($image_data['tmp_name'], $img->file)) {
 					$image = $img->url;
+					$image_do_status = 0;
 				}
 			}
 
 			// Build SQL statement
-			$sql = 'INSERT INTO actions (id, task, status, issue, user, reaped, notes, image, timestamp) ';
+			$sql = 'INSERT INTO actions (id, task, status, issue, user, reaped, notes, image, image_do_status, timestamp) ';
 			$sql .= 'SELECT IFNULL(MAX(id), 0) + 1, ';
 			$sql .= '"' . $this->db->real_escape_string($data->task) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($data->status) . '", ';
@@ -356,6 +361,7 @@ class eyewire_task {
 			$sql .= '"' . $this->db->real_escape_string($data->reaped) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($data->notes) . '", ';
 			$sql .= '"' . $this->db->real_escape_string($image) . '", ';
+			$sql .= $image_do_status . ', ';
 			$sql .= ' UTC_TIMESTAMP() ';
 			$sql .= 'FROM actions ';
 			$sql .= 'WHERE task = "' . $this->db->real_escape_string($data->task) . '"';
@@ -602,6 +608,7 @@ class eyewire_task {
 		// Determine base path
 		//$path = $cfg['image_repository'] . '/' . $cell . '/' . $task . '/';
 		$path = $cfg['image_repository'];
+
 		
 		if (!empty($path)) {
 			// Check for cell directory

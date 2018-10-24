@@ -15,9 +15,11 @@
 	require_once 'lib/class.sorter.php';
 	require_once 'lib/class.utils.php';
 	require_once 'lib/class.api11.php';
-	require_once 'lib/class.logger.php';
 
 	require_once 'config.php';
+
+	require_once 'vendor/autoload.php';
+
 	
 	
 // Create global objects
@@ -39,11 +41,6 @@
 	);
 	
 	Globals::setInstance('api', true);
-
-
-// Start logger
-// ------------------------------------
-	ScoutsLog_Logger::Start();
 	
 	
 // Connect to database
@@ -75,12 +72,13 @@
 	Globals::setInstance('language', $_lang);
 
 
-// Cross Origin Headers
+// Check for origin value
 // ------------------------------------
-	header('Access-Control-Allow-Origin: http://eyewire.org');
-	header('Access-Control-Allow-Headers: origin, x-requested-with, content-type');
-	header('Access-Control-Allow-Methods: POST, GET');
-	header('Access-Control-Allow-Credentials: true');
+	$_origin = getenv('CORS_ORIGIN');
+
+	if (!empty($_origin)) {
+		Globals::getInstance('session')->set_key('origin', $_origin);
+	}
 
 
 // Check if user has been authenticated
@@ -156,11 +154,6 @@
 // End session instance
 // ------------------------------------
 	Globals::getInstance('session')->stop();
-
-
-// Stop logger
-// ------------------------------------
-	ScoutsLog_Logger::Stop();
 
 
 // End output buffering and send buffer

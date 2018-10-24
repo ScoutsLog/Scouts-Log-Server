@@ -38,6 +38,11 @@ class api_internal extends API11RequestBase {
 					$this->do_cell_list();
 			}
 
+            // Make sure response is not cached
+			header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+			header("Cache-Control: post-check=0, pre-check=0", false);
+			header("Pragma: no-cache");
+
 			// Make sure request was handled
 			if ($handled === false) {
 				$this->request->SetError(401);
@@ -58,8 +63,7 @@ class api_internal extends API11RequestBase {
 		$obj = new stdClass();
 		$obj->status = 'ok';
 		$obj->roles = Globals::getInstance('session')->get_key('auth_roles');
-		$obj->version = $cfg['chrome_extension_version'];
-		$obj->plugin = $cfg['chrome_extension_url'];
+		$obj->version = $cfg['app_version'];
 		
 		// Save result to request output
 		$this->request->OutputType('text/json');
@@ -81,21 +85,37 @@ class api_internal extends API11RequestBase {
 
 			// Mark all cells inactive
 			Globals::getInstance('database')->query('UPDATE cells SET active = 0');
-			
-			// Get cells from EyeWire API (English)
-			$cells = EyeWire::CellList(true);
 
-			// Update database
+			// Download cell list (English)
+			$cells = EyeWire::CellList(true);
+	
 			foreach ($cells as $c) {
-				Globals::getInstance('database')->query('INSERT INTO cells (id, name, difficulty, active) VALUES("' . $c['cell'] . '", "' . $c['name'] . '", "' . $c['difficulty'] . '", "' . $c['active'] .'") ON DUPLICATE KEY UPDATE name = VALUES(name), difficulty = VALUES(difficulty), active = VALUES(active)');
+				Globals::getInstance('database')->query('INSERT INTO cells (id, name, dataset, difficulty, active) VALUES("' . $c['cell'] . '", "' . $c['name'] . '", 1, "' . $c['difficulty'] . '", "' . $c['active'] .'") ON DUPLICATE KEY UPDATE name = VALUES(name), difficulty = VALUES(difficulty), active = VALUES(active)');
 			}
-			
-			// Get cells from EyeWire API (Korean)
+
+			// Download cell list (Korean)
 			$cells = EyeWire::CellList(true, 'ko');
-			
-			// Update database
+				
 			foreach ($cells as $c) {
 				Globals::getInstance('database')->query('UPDATE cells SET name_ko = "' . $c['name'] . '" WHERE id = "' . $c['cell'] . '"');
+			}
+
+			// Download zfish cell list (English)
+			$cells = EyeWire::CellList(true, 'en-US,en', 11);
+	
+			foreach ($cells as $c) {
+				if ($c['tags']->mystic == 1) {
+					Globals::getInstance('database')->query('INSERT INTO cells (id, name, dataset, difficulty, active, mystic_status) VALUES("' . $c['cell'] . '", "' . $c['name'] . '", 11, "' . $c['difficulty'] . '", "' . $c['active'] .'","need-player-a") ON DUPLICATE KEY UPDATE name = VALUES(name), difficulty = VALUES(difficulty), active = VALUES(active)');
+				}
+			}
+
+			// Download zfish cell list (Korean)
+			$cells = EyeWire::CellList(true, 'ko', 11);
+			
+			foreach ($cells as $c) {
+				if ($c['tags']->mystic == 1) {
+					Globals::getInstance('database')->query('UPDATE cells SET name_ko = "' . $c['name'] . '" WHERE id = "' . $c['cell'] . '"');
+				}
 			}
 
 			$obj->success= true;

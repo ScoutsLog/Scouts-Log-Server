@@ -6,6 +6,8 @@ class eyewire_status {
 
 	private $text;
 	private $sequence;
+
+	private $dataset;
 	
 	private $header;
 
@@ -14,10 +16,11 @@ class eyewire_status {
 	private $tasks;
 	
 	
-	public function __construct($status, $issue='') {
+	public function __construct($status, $issue='', $dataset=1) {
 		// Save status
 		$this->id = $status;
 		$this->issue = $issue;
+		$this->dataset = $dataset;
 		
 		// Save database reference
 		$this->db = Globals::getInstance('database');
@@ -68,7 +71,7 @@ class eyewire_status {
 			$sql_from .= 'INNER JOIN status s ON (t.status = s.status) ';
 			$sql_from .= 'LEFT JOIN actions u ON (u.task = t.id AND u.user = "' . $this->db->real_escape_string($cur_user) . '") ';
 			$sql_from .= 'LEFT JOIN actions w ON (w.task = t.id AND w.user = "' . $this->db->real_escape_string($cur_user) . '" AND w.status = "watch") ';
-			$sql_where = 'WHERE s.include_active = 1 ';
+			$sql_where = 'WHERE c.dataset = "' . $this->db->real_escape_string($this->dataset) . '" AND s.include_active = 1 ';
 
 			if (!empty($this->issue)) {
 				$sql_where .= 'AND t.issue = "' . $this->db->real_escape_string($this->issue) . '" ';
@@ -84,7 +87,7 @@ class eyewire_status {
 			$sql_from .= 'LEFT JOIN status s ON (t.status = s.status) ';
 			$sql_from .= 'LEFT JOIN actions u ON (u.task = t.id AND u.user = "' . $this->db->real_escape_string($cur_user) . '") ';
 			$sql_from .= 'LEFT JOIN actions w ON (w.task = t.id AND w.user = "' . $this->db->real_escape_string($cur_user) . '" AND w.status = "watch") ';
-			$sql_where = 'WHERE t.status = "' . $this->db->real_escape_string($this->id) . '" ';
+			$sql_where = 'WHERE c.dataset = "' . $this->db->real_escape_string($this->dataset) . '" AND t.status = "' . $this->db->real_escape_string($this->id) . '" ';
 
 			if (!empty($this->issue)) {
 				$sql_where .= 'AND t.issue = "' . $this->db->real_escape_string($this->issue) . '" ';
@@ -100,7 +103,7 @@ class eyewire_status {
 			$sql_from .= 'INNER JOIN status s ON (t.status = s.status) ';
 			$sql_from .= 'LEFT JOIN actions u ON (u.task = t.id AND u.user = "' . $this->db->real_escape_string($cur_user) . '") ';
 			$sql_from .= 'LEFT JOIN actions w ON (w.task = t.id AND w.user = "' . $this->db->real_escape_string($cur_user) . '" AND w.status = "watch") ';
-			$sql_where = 'WHERE s.include_open = 1 AND t.active = 1 ';
+			$sql_where = 'WHERE c.dataset = "' . $this->db->real_escape_string($this->dataset) . '" AND s.include_open = 1 AND t.active = 1 ';
 
 			if (!empty($this->issue)) {
 				$sql_where .= 'AND t.issue = "' . $this->db->real_escape_string($this->issue) . '" ';

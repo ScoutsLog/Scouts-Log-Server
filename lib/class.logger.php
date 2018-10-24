@@ -6,6 +6,8 @@ class ScoutsLog_Logger {
 
 
 	public static function LogEntry($action, $result) {
+		return true;
+
 		// Check file handle
 		if (is_null(self::$fh_log)) {
 			error_log('ERROR: unable to create log entry; log file not opened.');
@@ -33,6 +35,8 @@ class ScoutsLog_Logger {
 	}
 
 	public static function Start() {
+		return;
+
 		if (is_null(self::$fh_log)) {
 			// Get config instance
 			$cfg = Globals::getInstance('config');
@@ -46,6 +50,8 @@ class ScoutsLog_Logger {
 	}
 
 	public static function Stop() {
+		return;
+
 		// Close file handle
 		@fclose(self::$fh_log);
 

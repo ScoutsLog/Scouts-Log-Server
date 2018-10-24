@@ -12,6 +12,8 @@
 
 	require_once 'vendor/autoload.php';
 
+	require_once 'lib/aws/aws-autoloader.php';
+
 
 // Create global objects
 // ------------------------------------
@@ -26,11 +28,6 @@
 	);
 
 	Globals::setInstance('config', $config);
-
-	Globals::setInstance(
-		'imgur',
-		new Imgur_Uploader()
-	);
 	
 	
 // Connect to database
@@ -57,8 +54,8 @@
 			include 'content/cron.google-sync.php';
 
 			break;
-		case 'imgur-uploader':
-			include 'content/cron.imgur-uploader.php';
+		case 'dreamobjects-uploader':
+			include 'content/cron.dreamobjects-uploader.php';
 
 			break;
 	}

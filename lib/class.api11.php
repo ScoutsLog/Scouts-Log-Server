@@ -50,7 +50,7 @@ class php_request11 {
 		$this->output_type = 'text/html';
 		$this->has_error = false;
 		$this->statusCode = 200;
-		$this->skip_log = false;
+		$this->skip_log = true;
 	}
 	
 	
@@ -254,9 +254,12 @@ abstract class API11RequestBase implements IAPI11Request {
 
 
 require_once 'class.api11.cell.php';
+require_once 'class.api11.data.php';
 require_once 'class.api11.history.php';
 require_once 'class.api11.internal.php';
+require_once 'class.api11.rating.php';
 require_once 'class.api11.stats.php';
 require_once 'class.api11.status.php';
 require_once 'class.api11.task.php';
 require_once 'class.api11.user.php';
+require_once 'class.api11.mystic.php';
